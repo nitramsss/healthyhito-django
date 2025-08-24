@@ -1,17 +1,18 @@
-{% extends 'main/layout.html' %}
+{% extends 'main/layout.html'  %}
 
 {% block body %}
-    <div id="app" data-csrf="{{ csrf_token }}"></div>
+    <div id="app"></div>
+
     <script type="text/babel">
 
         function App() {
             return (
                 <div>
-                    <h1>Meal History</h1>
-                    <p>{{ name }}</p>
-                
+                    <h1>Show Meal</h1>
+                    <p>{{ context.title }}</p>
+                    <p>{{ context.ingredients }}</p>
                 </div>
-            )
+            );
         }
 
         ReactDOM.render(<App />, document.querySelector("#app"));

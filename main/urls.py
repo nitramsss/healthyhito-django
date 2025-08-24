@@ -9,7 +9,7 @@ urlpatterns = [
     
     # Features
     path('home/', views.home, name="home"),
-    path('meal/', views.show_meal, name='meal'),
+    path('meal/', views.meal, name='meal'),
     path('history/', views.history, name="history"),
 ]
 

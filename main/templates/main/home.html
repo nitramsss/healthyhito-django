@@ -1,10 +1,97 @@
 {% extends 'main/layout.html' %}
 
 {% block body %}
+    <div id="app"></div>
 
-    <h1>Generate Meal</h1>
-    <form method="post" action="">
-        
-    </form>
+        <script type="text/babel">
+            const dietariesPreference = {
+                name: "dietary",
+                title: "Dietaries",
+                choices: [
+                    'Vegetarian', 'Vegan', 
+                    'Pescatarian', 'Keto', 
+                    'Paleo', 'Mediterranean', 
+                    'Low-Carb', 'Low-Fat'
+                ]};
+            const cuisinesPreference = {
+                name: "cuisine",
+                title: "Cuisines",
+                choices: ['Filipino', 'American', 'Italian', 'Chinese', 'Korean']
+            };
+            const mealTypePreference = {
+                name: "mealtype",
+                title: "Meal Type",
+                choices: ["Breakfast", "Lunch", "Dinner", "Snack", "Dessert", "Beverage"]
+            };
+            const caloriesPreference = {
+                name: "kcal",
+                title: "Calories",
+                choices: ["Under 300 kcal", "300–500 kcal", "500–700 kcal", "700–1000 kcal", "Over 1000 kcal"]
+            }; 
+            const retrictionPreference = {
+                name: "restriction",
+                title: "Allergies and Restrictions",
+                choices: [
+                    "None", "Dairy-Free", "Gluten-Free", 
+                    "Nut-Free", "Soy-Free", "Egg-Free", 
+                    "Shellfish-Free", "Halal", "Kosher"
+                ]
+            };
+            const proteinSourcePreference = {
+                name: "proteinsource",
+                title: "Protein Source",
+                choices: [
+                    "No preference", "Chicken", 
+                    "Beef", "Fish", "Seafood", 
+                    "Tofu", "Beans/Legumes"
+                ]};
+            const cookingTimePreference = {
+                name: "cookingtime",
+                title: "Cooking Time",
+                choices: ["Under 15 minutes", "15–30 minutes", "30–60 minutes", "Over 1 hour"]
+            };
+            const budgetPreference = {
+                name: "budget",
+                title: "Budget",
+                choices: ["No preference", "Under ₱100", "₱100–₱200", "₱200–₱400", "Over ₱400"]
+            };
+
+            // function SubmitForm()
+                
+
+            function SelectPreference(props) {
+                return (
+                    <div>
+                        <label for={props.info.name}>{props.info.title} Preference: </label>
+                        <select name={props.info.name} id={props.info.name}>
+                            {props.info.choices.map((choice) => (
+                                <option value={choice.toLowerCase()}>{choice}</option>
+                            ))};
+                        </select>                                           
+                    </div>
+                );
+            }; 
+
+            function App() {
+                return (
+                    <div>
+                        <h1>Generate Meal</h1>
+                        <form method="post" action="{% url 'meal' %}">
+                            <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+                            <SelectPreference info={dietariesPreference} />
+                            <SelectPreference info={cuisinesPreference} />
+                            <SelectPreference info={mealTypePreference} />
+                            <SelectPreference info={caloriesPreference} />
+                            <SelectPreference info={retrictionPreference} />
+                            <SelectPreference info={proteinSourcePreference} />
+                            <SelectPreference info={cookingTimePreference} />
+                            <SelectPreference info={budgetPreference} />
+                            <input type="submit" value="Generate Meal" />
+                        </form>
+                    </div>
+                );
+            }
+            ReactDOM.render(<App />, document.querySelector("#app"));
+        </script>
 
 {% endblock %}
