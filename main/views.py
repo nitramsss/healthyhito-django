@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.urls import reverse
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.hashers import make_password
+from django.views.decorators.csrf import csrf_exempt
 from .models import User, UserProfile
+
 import json
 
 from .services import gemini_api
@@ -87,15 +89,14 @@ def signup_view(request):
 
 
 @login_required
-def home(request):
-    context = {
+def home_view(request):
+    return render(request, "main/home.html", {
         "header": True,
-    }
-    return render(request, "main/home.html", context)
+    })
 
 
 @login_required
-def meal(request):
+def meal_view(request):
     if request.method == "POST":
         dietary = request.POST.get('dietary')
         cuisine = request.POST.get('cuisine')
@@ -106,7 +107,7 @@ def meal(request):
         cooking_time = request.POST.get('cookingtime')
         budget = request.POST.get('budget')
 
-    data = {
+    context = {
         "header": True,
         "dietary": dietary,
         "cuisine": cuisine,
@@ -118,25 +119,53 @@ def meal(request):
         "budget": budget
     }
 
-    response = gemini_api(data)
+    meal = gemini_api(context) # test
+    data = json.loads(meal) # test
 
-    meal = json.loads(response)
+    return render(request, "main/meal.html", data)
 
-    context = {
-        "title": meal["title"],
-        "calories": meal["calories"],
-        "description": meal["description"],
-        "ingredients": meal["ingredients"],
-        "process": meal["process"],
-        "duration": meal["duration"],
-        "budget": meal["budget"]
-    } 
 
-    return render(request, "main/meal.html", context)
+@csrf_exempt
+def generate_meal(request):
+    if request.method == "POST":
+        try:
+            data = json.loads(request.body)
+            request_data = {
+                "dietary": data.get('dietary'),
+                "cuisine": data.get('cuisine'),
+                "meal_type": data.get('meal_type'),
+                "calories": data.get('calories'),
+                "restriction": data.get('restriction'),
+                "protein_source": data.get('protein_source'),
+                "cooking_time": data.get('cooking_time'),
+                "budget": data.get('budget')  
+            }
+            print("---request received---")
+            
+            response = gemini_api(request_data)
+            print("---gemini has finally respond---")
+
+            meal = json.loads(response)
+            data = {
+                "title": meal["title"],
+                "calories": meal["calories"],
+                "description": meal["description"],
+                "ingredients": meal["ingredients"],
+                "steps": meal["process"],
+                "duration": meal["duration"],
+                "budget": meal["budget"]
+            }
+
+            return JsonResponse(data)
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
+        
+    return JsonResponse({'error': 'Only POST requests allowed'}, status=405)
 
 
 @login_required
-def history(request):
+def history_view(request):
     context = {
         "header": True,
         "name": "Test"

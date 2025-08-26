@@ -8,8 +8,9 @@ urlpatterns = [
     path('signup/', views.signup_view, name="signup"),
     
     # Features
-    path('home/', views.home, name="home"),
-    path('meal/', views.meal, name='meal'),
-    path('history/', views.history, name="history"),
+    path('home/', views.home_view, name="home"),
+    path('meal/', views.meal_view, name='meal'),
+    path('history/', views.history_view, name="history"),
+    path('meal-api/', views.generate_meal, name="meal-api")
 ]
 

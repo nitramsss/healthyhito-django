@@ -2,44 +2,49 @@ GEMINI_API_KEY = 'AIzaSyBaSqdeZra6vX5zqrsbm37iFnarrUMwbFU'
 
 def gemini_api(data):
     from google import genai
+
     client = genai.Client(api_key=GEMINI_API_KEY)
 
-    prompt = f"""You are a meal generator. Always respond ONLY in valid JSON format without explanations, text, or markdown.
-                    The client will provide the following input:
-                    {{
-                        "dietary": "{data['dietary']}",
-                        "cuisine": "{data['cuisine']}",
-                        "meal_type": "{data['meal_type']}",
-                        "calories": "{data['calories']}",
-                        "restriction": "{data['restriction']}",
-                        "protein_source": "{data['protein_source']}",
-                        "cooking_time": "{data['cooking_time']}",
-                        "budget": "{data['budget']}"
-                    }}
+    prompt = prompt = f""" You are a meal generator. Respond ONLY with a valid Python dictionary. 
+                            Do not include explanations, comments, markdown, or any text outside the dictionary. 
 
-                    Based on the input, generate exactly one meal suggestion with the following fields in the JSON response:
+                            Input:
+                            {{
+                                "dietary": "{data['dietary']}",
+                                "cuisine": "{data['cuisine']}",
+                                "meal_type": "{data['meal_type']}",
+                                "calories": "{data['calories']}",
+                                "restriction": "{data['restriction']}",
+                                "protein_source": "{data['protein_source']}",
+                                "cooking_time": "{data['cooking_time']}",
+                                "budget": "{data['budget']}"
+                            }}
 
-                    {{
-                    "title": "string (name of the meal)",
-                    "calories": "integer (approximate calorie count)",
-                    "description": "string (short description of the meal)",
-                    "ingredients": ["list of strings (ingredients with amounts)"],
-                    "process": ["list of strings (step-by-step instructions to cook)"],
-                    "duration": "string (total cooking time in minutes)",
-                    "budget": "string (approximate cost range in user's currency)"
-                    }}
+                            Output (one meal suggestion only) must be in this exact format:
+                            {{
+                                "title": "string",
+                                "calories": integer,
+                                "description": "string",
+                                "ingredients": ["string", "string", ...],
+                                "process": ["string", "string", ...],
+                                "duration": "string",
+                                "budget": "string"
+                            }}
+                        """
 
-                    Rules:
-                    - Do not include explanations, comments, or any text outside the JSON.
-                    - Always return valid JSON only.
-                    - Ensure values are relevant to the provided input.
-                """
 
     response = client.models.generate_content(
         model="gemini-2.5-flash", 
         contents=prompt
     )
-    print(response.text)
+    # import json
+    # meal = json.loads(response.text)
+
+    # print(meal["ingredients"])
+    # print(meal["ingredients"][0])
+
+
+    return  response.text
 
 # context = {
 #     "dietary": "vegan",

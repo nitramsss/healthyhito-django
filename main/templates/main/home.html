@@ -64,7 +64,7 @@
                     <div>
                         <label for={props.info.name}>{props.info.title} Preference: </label>
                         <select name={props.info.name} id={props.info.name}>
-                            {props.info.choices.map((choice) => (
+                            { props.info.choices.map((choice) => (
                                 <option value={choice.toLowerCase()}>{choice}</option>
                             ))};
                         </select>                                           
