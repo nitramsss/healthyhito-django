@@ -13,7 +13,7 @@
             
             const [title, setTitle] = useState("");
             const [calories, setCalories] = useState();
-            const [description, setDescription] = useState("");
+            const [description, setDescription] = ("");
             const [recipes, setRecipes] = useState([]);
             const [steps, setSteps] = useState([]);
             const [duration, setDuration] = useState("");
@@ -21,43 +21,23 @@
   
             const data = document.getElementById("meal-data");
             const mealData = JSON.parse(data.textContent);
-            console.log(mealData);
-            console.log(mealData.title);
+        
             React.useEffect(() => {
                 try {
-                    setTitle(mealData.title);
-                    setCalories(mealData.calories);
-                    setDescription(mealData.description);
                     setRecipes(mealData.ingredients);
-                    setSteps(mealData.steps);
-                    setDuration(mealData.duration);
-                    setBudget(mealData.budget);
                 } catch (error) {
                     console.error("Error parsing JSON string:", error);
                 }
             }, []); 
            
-            console.log(title);
-
             return (
                 <div>
-                    <h1>{ title }</h1>
-                    <h3>{ calories } kcal</h3>
-                    <p>{ description }</p>
-                    <h2>Ingredients</h2>
+                    <h1>Ingredients</h1>
                     <ul>
-                        { recipes.map(r => (
-                            <li>{r}</li>
+                        { recipes.map(i => (
+                            <li>{i}</li>
                         ))}
                     </ul>
-                     <h2>Steps</h2>
-                    <ul>
-                        { steps.map(s => (
-                            <li>{s}</li>
-                        ))}
-                    </ul>
-                    <h3>{ duration }</h3>
-                    <h3>{ budget }</h3>
                 </div>            
             );
         }

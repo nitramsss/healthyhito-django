@@ -107,61 +107,42 @@ def meal_view(request):
         cooking_time = request.POST.get('cookingtime')
         budget = request.POST.get('budget')
 
-    context = {
-        "header": True,
-        "dietary": dietary,
-        "cuisine": cuisine,
-        "meal_type": meal_type,
-        "calories": calories,
-        "restriction": restriction,
-        "protein_source": protein_source,
-        "cooking_time": cooking_time,
-        "budget": budget
-    }
-
-    meal = gemini_api(context) # test
-    data = json.loads(meal) # test
-
-    return render(request, "main/meal.html", data)
+        context = {
+            "header": True,
+            "dietary": dietary,
+            "cuisine": cuisine,
+            "meal_type": meal_type,
+            "calories": calories,
+            "restriction": restriction,
+            "protein_source": protein_source,
+            "cooking_time": cooking_time,
+            "budget": budget
+        }
 
 
-@csrf_exempt
-def generate_meal(request):
-    if request.method == "POST":
-        try:
-            data = json.loads(request.body)
-            request_data = {
-                "dietary": data.get('dietary'),
-                "cuisine": data.get('cuisine'),
-                "meal_type": data.get('meal_type'),
-                "calories": data.get('calories'),
-                "restriction": data.get('restriction'),
-                "protein_source": data.get('protein_source'),
-                "cooking_time": data.get('cooking_time'),
-                "budget": data.get('budget')  
-            }
-            print("---request received---")
-            
-            response = gemini_api(request_data)
-            print("---gemini has finally respond---")
+        response = gemini_api(context) 
+        meal = json.loads(response)
+        data = {
+            "title": meal["title"],
+            "calories": meal["calories"],
+            "description": meal["description"],
+            "ingredients": meal["ingredients"],
+            "steps": meal["process"],
+            "duration": meal["duration"],
+            "budget": meal["budget"]
+        }
 
-            meal = json.loads(response)
-            data = {
-                "title": meal["title"],
-                "calories": meal["calories"],
-                "description": meal["description"],
-                "ingredients": meal["ingredients"],
-                "steps": meal["process"],
-                "duration": meal["duration"],
-                "budget": meal["budget"]
-            }
+        context = {
+            "data": data
+        }
 
-            return JsonResponse(data)
+        print(context)
 
-        except json.JSONDecodeError:
-            return JsonResponse({'error': 'Invalid JSON data'}, status=400)
-        
-    return JsonResponse({'error': 'Only POST requests allowed'}, status=405)
+        return render(request, "main/meal.html", context)
+
+    return render(request, "main/error.html", {
+        "header": True
+    })
 
 
 @login_required

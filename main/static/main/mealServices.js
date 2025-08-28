@@ -1,6 +1,6 @@
 API_ENDPOINT = ' http://127.0.0.1:8000/meal-api';
 
-async function sendDataToDjango(data) {
+async function mealServices(data) {
     const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
     try {
         const response = await fetch(API_ENDPOINT, {
@@ -28,4 +28,4 @@ const myData = {
     name: 'John Doe',
     age: 30
 };
-sendDataToDjango(myData);
+// sendDataToDjango(myData);
