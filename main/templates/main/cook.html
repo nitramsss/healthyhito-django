@@ -1,0 +1,67 @@
+{% extends 'main/layout.html' %}
+
+{% block body %}
+    <div id="app"></div>
+   
+    <script type="text/babel">
+        function App() {
+            const {useState, useEffect} = React;
+
+            const [mealData, setMealData] = useState({});
+
+            React.useEffect(() => {
+                try {
+                    const data = localStorage.getItem('meal-data');
+                    const parseData = JSON.parse(data);
+                    console.log('meal-data:', parseData);
+                    setMealData({
+                        ...mealData,
+                        title: parseData.title,
+                        calories: parseData.calories,
+                        description: parseData.description,
+                        recipes: parseData.recipes,
+                        steps: parseData.steps,
+                        duration: parseData.duration,
+                        budget: parseData.budget,
+                    });
+                
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            }, []);
+
+            console.log('meal-data:', mealData);
+            const stringifiedData = JSON.stringify(mealData)
+            console.log('serialize-data:', stringifiedData);
+
+            return(
+                <div>
+                    <h1>{ mealData.title }</h1>
+                    <h3>{ mealData.calories }</h3>
+                    <p>{ mealData.description }</p>
+                    <ul>
+                        { Array.isArray(mealData.recipes) && mealData.recipes.map( r => (
+                            <li>{r}</li>
+                        ))}
+                    </ul>
+                    <ol>
+                        { Array.isArray(mealData.steps) && mealData.steps.map(s => (
+                            <li>{s}</li>
+                        ))}
+                    </ol>
+                    <h3>{ mealData.duration }</h3>
+                    <h3>{ mealData.budget }</h3>
+                    <form action="{% url 'cook' %}" method="post">
+                        <input type="hidden" name="csrfmiddlewaretoken" value="{{ csrf_token }}" />
+                        <input type="hidden" name="meal_data" value={ stringifiedData } />  
+                        <input type="submit" value="Done!" />
+                    </form>
+                </div>  
+            )
+        }
+
+        ReactDOM.render(<App />, document.querySelector("#app"));
+    </script>
+
+
+{% endblock %}

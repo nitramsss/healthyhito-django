@@ -2,67 +2,99 @@
 
 {% block body %}
 
-
-    {{ data|json_script:"meal-data" }}
     <div id="app"></div>
    
     <script type="text/babel">
-        
+    
         function App() {
             const {useState, useEffect} = React;
-            
-            const [title, setTitle] = useState("");
-            const [calories, setCalories] = useState();
-            const [description, setDescription] = useState("");
-            const [recipes, setRecipes] = useState([]);
-            const [steps, setSteps] = useState([]);
-            const [duration, setDuration] = useState("");
-            const [budget, setBudget] = useState("");
-  
-            const data = document.getElementById("meal-data");
-            const mealData = JSON.parse(data.textContent);
-            console.log(mealData);
-            console.log(mealData.title);
-            React.useEffect(() => {
+
+
+            const [contextData, setContextData] = useState({});
+            const [mealData, setMealData] = useState({});
+
+
+            const fetchMealData = async () => {
+                console.log("Fetching data...");   
                 try {
-                    setTitle(mealData.title);
-                    setCalories(mealData.calories);
-                    setDescription(mealData.description);
-                    setRecipes(mealData.ingredients);
-                    setSteps(mealData.steps);
-                    setDuration(mealData.duration);
-                    setBudget(mealData.budget);
-                } catch (error) {
-                    console.error("Error parsing JSON string:", error);
+                        const response = await fetch('http://127.0.0.1:8000/meal-api/', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify(contextData),
+                        });
+                        const jsonResponse = await response.json();
+                        console.log('API response:', jsonResponse);
+                        setMealData({
+                            ...mealData,
+                            title:  jsonResponse.title,
+                            calories: jsonResponse.calories,
+                            description: jsonResponse.description,
+                            recipes: jsonResponse.ingredients,
+                            steps: jsonResponse.steps,
+                            duration: jsonResponse.duration,
+                            budget: jsonResponse.budget,
+                        });
+                    } catch (error) {
+                        console.error('Error sending data:', error);
+                    }
+            };
+
+
+            React.useEffect(() => {
+                console.clear();
+                try { 
+                    setContextData({
+                        ...contextData,
+                        dietary: '{{ dietary }}',
+                        cuisine: '{{ cuisine }}',
+                        meal_type: '{{ meal_type }}',
+                        calories: '{{ calories }}',
+                        restriction: '{{ restriction }}',
+                        protein_source: '{{ protein_source }}',
+                        cooking_time: '{{ cooking_time }}',
+                        budget: '{{ budget }}'
+                    });
+                } catch(error) {
+                    console.error('Error: ', error);
                 }
-            }, []); 
-           
-            console.log(title);
+                fetchMealData();
+                const stringifyData = JSON.stringify(mealData);
+                localStorage.setItem('meal-data', stringifyData);
+            }, [mealData]);
+
+
+            const cookHTML = () => {
+                window.location.href = " http://127.0.0.1:8000/cook"
+            }
+
 
             return (
                 <div>
-                    <h1>{ title }</h1>
-                    <h3>{ calories } kcal</h3>
-                    <p>{ description }</p>
+                    <h1>{ mealData.title }</h1>
+                    <h3>{ mealData.calories } kcal</h3>
+                    <p>{ mealData.description }</p>
                     <h2>Ingredients</h2>
                     <ul>
-                        { recipes.map(r => (
+                        { Array.isArray(mealData.recipes) && mealData.recipes.map(r => (
                             <li>{r}</li>
                         ))}
                     </ul>
-                     <h2>Steps</h2>
-                    <ul>
-                        { steps.map(s => (
+                    <h2>Steps</h2>
+                    <ol>
+                        { Array.isArray(mealData.steps) && mealData.steps.map(s => (
                             <li>{s}</li>
                         ))}
-                    </ul>
-                    <h3>{ duration }</h3>
-                    <h3>{ budget }</h3>
+                    </ol>
+                    <h3>{ mealData.duration }</h3>
+                    <h3>{ mealData.budget }</h3>
+                    <button onClick={fetchMealData}>Generate Again</button>
+                    <button onClick={cookHTML}>Cook</button>     
                 </div>            
             );
         }
-
-
+        
         ReactDOM.render(<App />, document.querySelector("#app"));
     </script>
 
