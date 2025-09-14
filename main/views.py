@@ -68,7 +68,6 @@ def signup_view(request):
         weight =float(request.POST.get("weight"))
         height = float(request.POST.get("height"))
         bmi = float((weight)/(height**2))
-        allergies="test"
 
         user_profile = UserProfile.objects.create(
             user=user,
@@ -76,7 +75,6 @@ def signup_view(request):
             weight=weight,
             height=height,
             bmi=bmi,
-            allergies=allergies
         )
 
         user.save()
