@@ -13,6 +13,7 @@
                 try {
                     const data = localStorage.getItem('meal-data');
                     const parseData = JSON.parse(data);
+
                     console.log('meal-data:', parseData);
                     setMealData({
                         ...mealData,

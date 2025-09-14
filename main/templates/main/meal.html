@@ -8,8 +8,7 @@
     
         function App() {
             const {useState, useEffect} = React;
-
-
+            
             const [contextData, setContextData] = useState({});
             const [mealData, setMealData] = useState({});
 
@@ -59,13 +58,20 @@
                 } catch(error) {
                     console.error('Error: ', error);
                 }
+                
+            }, []);
+
+            React.useEffect(() => {
                 fetchMealData();
-                const stringifyData = JSON.stringify(mealData);
-                localStorage.setItem('meal-data', stringifyData);
-            }, [mealData]);
+             }, [])
+
+            console.log('meal-data:', mealData);
 
 
             const cookHTML = () => {
+                console.log('meal-datastringify', mealData)
+                const data = JSON.stringify(mealData);
+                localStorage.setItem('meal-data', data);
                 window.location.href = " http://127.0.0.1:8000/cook"
             }
 

@@ -8,7 +8,9 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import User, UserProfile, UserHistory
 import json
 
+
 from .services import gemini_api
+from .helpers import convert_to_array
 
 
 # Authentication
@@ -129,6 +131,7 @@ def meal_view(request):
 def meal_api(request):
     if request.method == "POST":
         try:
+            # Get users data
             data = json.loads(request.body)
 
             user_data = {
@@ -142,6 +145,7 @@ def meal_api(request):
                 "budget": data.get('budget'),
             }
             
+            # Call Gemini API and Generate Meal
             gemini_response = gemini_api(user_data) 
             meal_data = json.loads(gemini_response)
             processed_data = {
@@ -153,7 +157,6 @@ def meal_api(request):
                 "duration": meal_data["duration"],
                 "budget": meal_data["budget"],
             }
-            print(processed_data)
             return JsonResponse(processed_data)
 
         except json.JSONDecodeError:
@@ -187,7 +190,6 @@ def cook_view(request):
             duration=duration,
             budget=budget,
         )
-        print(user_history)
         user_history.save()
         print("***Data Saved***")
         
@@ -201,8 +203,107 @@ def cook_view(request):
 @login_required
 def history_view(request):
     user_history_data = UserHistory.objects.filter(user=request.user)
+    data = [
+        {
+            'id': entry.id,
+            'date': str(entry.date),
+            'title': entry.title,
+            'description': entry.description,
+            'calories': entry.calories,
+            'ingredients': entry.ingredients,
+            'steps': entry.steps,
+            'duration': entry.duration,
+            'budget': entry.budget,
+        }
+        for entry in user_history_data
+    ]
+
     context = {
         "header": True,
-        "data": user_history_data,
+        "data": data,
     }
     return render(request, "main/history.html", context)
+
+
+@login_required
+def history_details(request, id):
+    history_details = UserHistory.objects.get(id=id)
+    data = {
+        "date": str(history_details.date),
+        "title": history_details.title,
+        "calories": history_details.calories,
+        "description": history_details.description,
+        "ingredients": convert_to_array(history_details.ingredients),
+        "steps": convert_to_array(history_details.steps),
+        "duration": history_details.duration,
+        "budget": history_details.budget,
+    }
+
+    context = {
+        "header": True,
+        "data": data,
+    }
+    return render(request, "main/historydetails.html", context)
+
+
+@login_required
+def user_profile(request):
+    # Get user
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+
+    context = {
+        "header": True,
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "age": user_profile.age,
+        "weight": user_profile.weight,
+        "height": user_profile.height,
+        "bmi": user_profile.bmi,
+    }
+    return render(request, "main/userprofile.html", context)
+
+
+@login_required
+def edit_profile(request):
+    user = request.user
+    user_profile = UserProfile.objects.get(user=user)
+
+    if request.method == "POST":
+        # Get data individually
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        age = int(request.POST.get('age'))
+        weight = float(request.POST.get('weight'))
+        height = float(request.POST.get('height'))
+        bmi =  float((weight)/(height**2))
+
+        # Edit and Save Database
+        user.first_name = first_name
+        user.last_name = last_name
+        user_profile.age = age
+        user_profile.weight = weight
+        user_profile.height = height
+        user_profile.bmi =  bmi
+
+        user.save()
+        user_profile.save()
+
+        return HttpResponseRedirect(reverse('profile'))
+
+    data = {
+        "username": user.username,
+        "first_name": user.first_name,
+        "last_name": user.last_name,
+        "age": user_profile.age,
+        "weight": user_profile.weight,
+        "height": user_profile.height,
+        "bmi": user_profile.bmi,
+    }
+
+    context = {
+        "header": True,
+        "data": data,
+    }
+    return render(request, "main/editprofile.html", context)

@@ -1,0 +1,27 @@
+{% extends "main/layout.html" %}
+
+{% block body %}
+
+    <div id="app"></div>
+   
+    <script type="text/babel">
+        function App() {
+            return (
+                <div>
+                    <h1>{{username}}</h1>
+                    <h3>Name: {{first_name}} {{last_name}}</h3>
+                    <h3>Age: {{age}}</h3>
+                    <h3>Weight: {{weight}}</h3>
+                    <h3>Height: {{height}}</h3>
+                    <h3>BMI: {{bmi|floatformat:2}}</h3>
+                    <a href={'edit-profile/'}><button>Edit</button></a>
+
+                </div>
+            );
+        }
+
+        ReactDOM.render(<App />, document.querySelector("#app"));
+    </script>
+
+
+{% endblock %}

@@ -1,15 +1,28 @@
 {% extends 'main/layout.html' %}
 
 {% block body %}
+
     <div id="app"></div>
+
+    {{ data|json_script:"data" }}
     <script type="text/babel">
 
         function App() {
+            const data = JSON.parse(document.getElementById('data').textContent);
+
             return (
                 <div>
-                    <h1>Meal History</h1>
-                    <p>{{ data }}</p>
-                
+                    { Array.isArray(data) && data.map(d => (
+                        <a href={`/details/${d.id}`}>
+                            <button>
+                                <div>
+                                    <h3>{d.title}</h3>   
+                                    <p>{d.description}</p>
+                                    <h5>{d.date}</h5>
+                                </div>
+                            </button>
+                        </a>
+                    ))}
                 </div>
             )
         }

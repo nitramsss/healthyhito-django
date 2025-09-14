@@ -1,0 +1,60 @@
+{% extends 'main/layout.html' %}
+
+{% block body %}
+    <div id="app"></div>
+
+    {{ data|json_script:"data" }}
+    <script type="text/babel">
+
+        function App() {
+            const {useState, useEffect} = React;
+
+            const data = JSON.parse(document.getElementById('data').textContent);
+            const [mealData, setMealData] = useState({});
+
+            React.useEffect(() => {
+                try {
+                    setMealData({
+                        ...mealData,
+                        title:  data.title,
+                        calories: data.calories,
+                        description: data.description,
+                        recipes: data.ingredients,
+                        steps: data.steps,
+                        duration: data.duration,
+                        budget: data.budget,
+                    });
+                } catch (error) {
+                    console.error('error:', error);
+                }
+            }, []);
+            
+            return (
+                <div>
+                    <h1>{ mealData.title }</h1>
+                    <h3>{ mealData.calories } kcal</h3>
+                    <p>{ mealData.description }</p>
+                    <h2>Ingredients</h2>
+                    <ul>
+                        { Array.isArray(mealData.recipes) && mealData.recipes.map(r => (
+                            <li key={r}>{r}</li>
+                        ))}
+
+                        {mealData.recipes}
+                    </ul>
+                    <h2>Steps</h2>
+                    <ol>
+                        { Array.isArray(mealData.steps) && mealData.steps.map(s => (
+                            <li>{s}</li>
+                        ))}
+                    </ol>
+                    <h3>{ mealData.duration }</h3>
+                    <h3>{ mealData.budget }</h3>
+                </div>
+            );
+        }
+    
+        ReactDOM.render(<App />, document.querySelector("#app"));
+
+    </script>
+{% endblock %}
