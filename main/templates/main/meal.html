@@ -11,10 +11,12 @@
             
             const [contextData, setContextData] = useState({});
             const [mealData, setMealData] = useState({});
+            const [loading, setLoading] = useState(true);
 
 
             const fetchMealData = async () => {
-                console.log("Fetching data...");   
+                console.log("Fetching data...");
+                setLoading(true);   
                 try {
                         const response = await fetch('http://127.0.0.1:8000/meal-api/', {
                             method: 'POST',
@@ -35,6 +37,7 @@
                             duration: jsonResponse.duration,
                             budget: jsonResponse.budget,
                         });
+                        setLoading(false);
                     } catch (error) {
                         console.error('Error sending data:', error);
                     }
@@ -75,31 +78,33 @@
                 window.location.href = " http://127.0.0.1:8000/cook"
             }
 
+            console.log('loading', loading);
 
             return (
-                <div>
-                    <h1>{ mealData.title }</h1>
-                    <h3>{ mealData.calories } kcal</h3>
-                    <p>{ mealData.description }</p>
-                    <h2>Ingredients</h2>
-                    <ul>
-                        { Array.isArray(mealData.recipes) && mealData.recipes.map(r => (
-                            <li>{r}</li>
-                        ))}
-                    </ul>
-                    <h2>Steps</h2>
-                    <ol>
-                        { Array.isArray(mealData.steps) && mealData.steps.map(s => (
-                            <li>{s}</li>
-                        ))}
-                    </ol>
-                    <h3>{ mealData.duration }</h3>
-                    <h3>{ mealData.budget }</h3>
-                    <button onClick={fetchMealData}>Generate Again</button>
-                    <button onClick={cookHTML}>Cook</button>     
-                </div>            
+                loading ? <h1>Loading...</h1> :
+                    <div>
+                        <h1>{ mealData.title }</h1>
+                        <h3>{ mealData.calories } kcal</h3>
+                        <p>{ mealData.description }</p>
+                        <h2>Ingredients</h2>
+                        <ul>
+                            { Array.isArray(mealData.recipes) && mealData.recipes.map(r => (
+                                <li>{r}</li>
+                            ))}
+                        </ul>
+                        <h2>Steps</h2>
+                        <ol>
+                            { Array.isArray(mealData.steps) && mealData.steps.map(s => (
+                                <li>{s}</li>
+                            ))}
+                        </ol>
+                        <h3>{ mealData.duration }</h3>
+                        <h3>{ mealData.budget }</h3>
+                        <button onClick={fetchMealData}>Generate Again</button>
+                        <button onClick={cookHTML}>Cook</button>     
+                    </div>  
             );
-        }
+        };
         
         ReactDOM.render(<App />, document.querySelector("#app"));
     </script>

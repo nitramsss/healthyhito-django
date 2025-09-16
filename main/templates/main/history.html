@@ -5,13 +5,16 @@
     <div id="app"></div>
 
     {{ data|json_script:"data" }}
+    {{ message|json_script:"message" }}
     <script type="text/babel">
-
         function App() {
-            const data = JSON.parse(document.getElementById('data').textContent);
+            const {useState, useEffect} = React;
 
+            const data = JSON.parse(document.getElementById('data').textContent);
+            console.log('data', data);
             return (
                 <div>
+                    { data.length < 1 ? <h1>No History</h1> : null}
                     { Array.isArray(data) && data.map(d => (
                         <a href={`/details/${d.id}`}>
                             <button>

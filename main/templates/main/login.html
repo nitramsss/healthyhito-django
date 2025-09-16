@@ -1,19 +1,38 @@
 {% extends 'main/layout.html' %}
 
 {% block body %}
-    <h1>Login</h1>
-    {% if message %}
-        <div>{{ message }}</div>
-    {% endif %}
+ <div id="app"></div>
+   
+    <script type="text/babel">
+        function App() {
+            const {useState, useEffect} = React;
 
+            const [message, setMessage] = useState('');
+            const [username, setUsername] = useState('');
+            const [password, setPassword] = useState('');
 
-    <form action="{% url "login" %}" method="post">
-        {% csrf_token %}
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-        <label for="password">Password: </label>
-        <input type="password" id="password" name="password" required>
-        <input type="submit" value="Log In">
-    </form>
+            React.useEffect(() => {
+                setMessage({{message}})
+            }, [])
+ 
+            return (
+                <div>
+                    <h1>Login</h1>
+                    { message ? <div>{ message }</div> : null}
+
+                    <form action="{% url 'login' %}" method="post">
+                        <input type="hidden" value="{{csrf_token}}" name="csrfmiddlewaretoken" />
+                        <label for="username">Username:</label>
+                        <input type="text" id="username" name="username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+                        <label for="password">Password: </label>
+                        <input type="password" id="password" name="password" value={password} onChange={(e) => setPassword(e.target.value)} required />
+                        <input type="submit" value="Login" />
+                    </form>
+
+                    </div>
+                );
+        };
+        ReactDOM.render(<App />, document.querySelector("#app"));
+    </script>
 
 {% endblock %}
